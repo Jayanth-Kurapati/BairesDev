@@ -1,0 +1,872 @@
+/* ==========================================================================
+   Collision-Agile Dynamic Workspace — Industrial Engineering Console
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@400;500;600;700&display=swap');
+
+:root {
+  /* Brutalist Obsidian Console Palette */
+  --bg-primary: #0F0F11;     /* Grounded Obsidian */
+  --bg-secondary: #141416;   /* Engineering Panel Gray */
+  --panel-bg: #19191D;       /* Slate Deck */
+  --card-bg: #222227;        /* Solid Matte Gray */
+  --nested-bg: #1B1B1F;      /* Embedded Dark Frame */
+  
+  --border-color: #2E2E35;   /* Heavy Duty Grid Border */
+  --border-focus: #44444F;   /* Contrast Border */
+  
+  --text-main: #D1D5DB;      /* Muted Silver */
+  --text-muted: #7A828E;     /* Muted Label Gray */
+  --text-bright: #FFFFFF;    /* Pure White */
+
+  --accent-color: #F97316;   /* Functional Hazard Orange Accent */
+  
+  --success-color: #10B981;  /* Status OK (Emerald) */
+  --warning-color: #F59E0B;  /* Status Wait (Amber) */
+  --error-color: #EF4444;    /* Status Danger (Crimson) */
+  
+  --font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono: 'JetBrains Mono', "Fira Code", monospace;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-main);
+  font-family: var(--font-family);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* Custom Tabular Monospace Helpers - Strict Monospace (Issue 3) */
+.mono-metric {
+  font-family: var(--font-mono) !important;
+  font-weight: 500;
+  letter-spacing: -0.2px;
+}
+
+/* Custom Minimalist Scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 2px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+/* App Containers */
+.dashboard-app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  padding: 12px;
+  gap: 12px;
+  max-width: 100%;
+}
+
+/* Navigation Header - No Shadows (Issue 2) */
+.dashboard-app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 16px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  box-shadow: none;
+}
+
+.brand-group h1 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: var(--text-bright);
+}
+
+.brand-group p {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Sockets Badge - Compact, Flat, No Glows (Issue 1 & 2) */
+.status-badge-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 3px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  background: rgba(16, 185, 129, 0.08);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  color: var(--success-color);
+  box-shadow: none;
+}
+
+.status-badge-group.disconnected {
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  color: var(--error-color);
+}
+
+.pulse-indicator {
+  width: 5px;
+  height: 5px;
+  background-color: var(--success-color);
+  border-radius: 50%;
+  box-shadow: none;
+}
+
+.status-icon {
+  flex-shrink: 0;
+}
+
+/* Main Dashboard Workspace Columns */
+.dashboard-app-main {
+  display: grid;
+  grid-template-columns: 310px 1fr;
+  gap: 12px;
+  flex: 1;
+}
+
+@media (max-width: 1024px) {
+  .dashboard-app-main {
+    grid-template-columns: 1fr;
+  }
+}
+
+.layout-left-panel {
+  display: flex;
+  flex-direction: column;
+}
+
+.layout-right-panel {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Shipment Pool Panel (Left Panel) - Height Aligned (Issue 5) */
+.shipment-list-panel {
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  height: calc(100vh - 290px);
+  min-height: 400px;
+  box-shadow: none;
+}
+
+/* Drop Zone Activation - Dashed Contrast Border (Micro-interaction 2.3) */
+.shipment-list-panel.active-drag-over {
+  border: 1px dashed #4E4E56;
+}
+
+.panel-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.panel-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-bright);
+}
+
+.panel-badge {
+  background: var(--nested-bg);
+  border: 1px solid var(--border-color);
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 0.65rem;
+  font-family: var(--font-mono);
+  color: var(--text-muted);
+}
+
+/* Fix Animation Pipeline - Remove overflow bounds clipping dragging cards (Animation Fix 1.2) */
+.panel-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px;
+}
+
+/* Placeholder prompts */
+.empty-panel-prompt {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  text-align: center;
+  color: var(--text-muted);
+  gap: 8px;
+}
+
+.empty-icon-box {
+  font-size: 1.5rem;
+  opacity: 0.5;
+}
+
+.empty-panel-prompt h4 {
+  font-size: 0.85rem;
+  color: var(--text-bright);
+}
+
+.empty-panel-prompt p {
+  font-size: 0.72rem;
+  max-width: 200px;
+}
+
+.available-shipments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px; /* Gaps compressed (Issue 1) */
+}
+
+/* Containers Grid Panel (Right Panel) */
+.containers-flex-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  height: 100%;
+}
+
+@media (max-width: 1200px) {
+  .containers-flex-row {
+    grid-template-columns: 1fr;
+    auto-rows: minmax(300px, auto);
+  }
+}
+
+/* Containers Slot Decks - Height Aligned (Issue 5) */
+.container-slot-node {
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 12px;
+  height: calc(100vh - 290px);
+  min-height: 400px;
+  box-shadow: none;
+  transition: border-color 0.15s ease-in-out;
+}
+
+/* Drop Zone Activation - Dashed Contrast Border (Micro-interaction 2.3) */
+.container-slot-node.active-drag-over {
+  border: 1px dashed #4E4E56;
+}
+
+.container-slot-node.nearing-capacity {
+  border-color: rgba(239, 68, 68, 0.4);
+}
+
+.container-node-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.container-title-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.container-box-icon {
+  color: var(--text-muted);
+}
+
+.container-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-bright);
+}
+
+.container-cost-tag {
+  display: flex;
+  align-items: center;
+  background: var(--nested-bg);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  font-family: var(--font-mono);
+}
+
+.container-node-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1;
+}
+
+/* Compact Progress Indicators */
+.capacity-bar-container {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.capacity-bar-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+.capacity-bar-percentage {
+  color: var(--text-bright);
+}
+
+.capacity-bar-stats {
+  color: var(--text-muted);
+}
+
+.capacity-bar-track {
+  width: 100%;
+  height: 4px;
+  background: var(--nested-bg);
+  border-radius: 1px;
+  overflow: hidden;
+}
+
+.capacity-bar-fill {
+  height: 100%;
+  border-radius: 1px;
+  transition: width 0.3s ease-out;
+}
+
+/* Assigned Cargo Slot Manifest Box - Overflow Visible for Drag Transitions (Animation Fix 1.2) */
+.container-contents-box {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: var(--nested-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 3px;
+  padding: 8px;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.contents-box-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 4px;
+  margin-bottom: 4px;
+}
+
+.contents-box-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  text-align: center;
+}
+
+.placeholder-text {
+  opacity: 0.6;
+}
+
+.contents-box-chips {
+  display: flex;
+  flex-direction: column;
+  gap: 4px; /* Chip gaps compressed */
+}
+
+/* Shipment Cards - Solid Brutalist High Density - Explicit Positioning (Animation Fix 1.1) */
+.shipment-node {
+  position: relative; /* Preserves layout animation context */
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 3px;
+  box-shadow: none !important;
+  touch-action: none;
+  transition: border-color 0.15s ease-in-out;
+}
+
+.shipment-node.card-variant {
+  padding: 4px 8px; /* Padding reduced by 50% (Issue 1) */
+}
+
+/* Hover State Micro-interaction - Subtly shift border to neutral-700 & grab icon (Micro-interaction 2.1) */
+.shipment-node.card-variant:hover {
+  border-color: var(--border-focus);
+  cursor: grab;
+  cursor: -webkit-grab;
+}
+
+/* Active Dragging Micro-interaction - Grabbing cursor, opacity, neutral-600 border outline (Micro-interaction 2.2) */
+.shipment-node.dragging-active {
+  opacity: 0.25;
+  border-color: var(--border-color) !important;
+}
+
+/* Card Header Elements */
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 3px; /* Compressed (Issue 1) */
+}
+
+.card-title {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-bright);
+}
+
+/* Flat borderless status markers - De-buttoned (Issue 4) */
+.card-status-flat {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.62rem;
+  font-weight: 700;
+}
+
+.stable-text {
+  color: var(--success-color);
+}
+
+.stable-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background-color: var(--success-color);
+}
+
+.pending-text {
+  color: var(--warning-color);
+}
+
+.locked-text {
+  color: var(--error-color);
+}
+
+.card-body {
+  border-top: 1px solid var(--border-color);
+  padding-top: 2px; /* Compressed (Issue 1) */
+}
+
+.card-stat {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.7rem;
+}
+
+.stat-label {
+  color: var(--text-muted);
+}
+
+.stat-val {
+  color: var(--text-main);
+}
+
+/* Cargo Manifest Chips inside Containers */
+.shipment-node.chip-variant {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 8px;
+  border-radius: 2px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+}
+
+.shipment-node.chip-variant.status-pending {
+  border-color: rgba(245, 158, 11, 0.3);
+  background: rgba(245, 158, 11, 0.04);
+}
+
+.shipment-node.chip-variant.status-locked {
+  border-color: rgba(239, 68, 68, 0.3);
+  background: rgba(239, 68, 68, 0.04);
+}
+
+.chip-details {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow: hidden;
+  flex: 1;
+}
+
+.chip-icon-weight {
+  color: var(--text-muted);
+}
+
+.chip-name {
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--text-bright);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chip-weight {
+  font-size: 0.65rem;
+  background: var(--nested-bg);
+  border: 1px solid var(--border-color);
+  padding: 1px 4px;
+  border-radius: 2px;
+  color: var(--text-main);
+}
+
+.chip-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.chip-remove-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  cursor: pointer;
+  padding: 0 2px;
+  line-height: 1;
+}
+
+.chip-remove-btn:hover {
+  color: var(--error-color);
+}
+
+.spinner-animation {
+  animation: spin 1.2s linear infinite;
+  color: inherit;
+}
+
+.lock-icon {
+  color: var(--error-color);
+}
+
+/* Docked Bottom Simulation Console (Issue 3 Console Integration) */
+.demo-console-panel {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 4px; /* Matches container corner styling */
+  margin-top: 4px;
+  box-shadow: none !important;
+}
+
+.console-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--panel-bg);
+  border-bottom: 1px solid var(--border-color);
+  padding: 6px 12px;
+}
+
+.console-header h4 {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--accent-color);
+  letter-spacing: 0.8px;
+}
+
+.console-body {
+  padding: 10px 12px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .console-body {
+    grid-template-columns: 1fr;
+  }
+}
+
+.console-status-line {
+  margin-top: 8px;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--text-main);
+  padding: 4px 6px;
+  background: var(--nested-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 2px;
+}
+
+.console-tip {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  line-height: 1.3;
+  margin-bottom: 6px;
+}
+
+.console-selectors {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.selector-group {
+  display: grid;
+  grid-template-columns: 55px 1fr;
+  align-items: center;
+}
+
+.selector-group label {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+}
+
+.selector-group select {
+  background: var(--nested-bg);
+  border: 1px solid var(--border-color);
+  color: var(--text-bright);
+  font-size: 0.72rem;
+  padding: 3px 6px;
+  border-radius: 2px;
+  outline: none;
+  font-family: var(--font-family);
+}
+
+.console-trigger-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--accent-color);
+  color: var(--text-bright);
+  border: none;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 6px;
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+.console-trigger-btn:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.console-trigger-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+
+
+/* System Logs feed in Console drawer */
+.global-feed-box {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  border: 1px solid var(--border-color);
+  background: var(--nested-bg);
+  padding: 8px;
+  border-radius: 2px;
+  max-height: 155px;
+  overflow-y: auto;
+}
+
+.feed-header {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 4px;
+  margin-bottom: 4px;
+}
+
+.feed-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.feed-item {
+  font-family: var(--font-mono);
+  font-size: 0.64rem;
+  color: var(--text-main);
+  display: flex;
+  gap: 6px;
+  line-height: 1.3;
+}
+
+.feed-time {
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+/* Alert Notification Overlay - Flat and Bordered */
+.toast-container-wrapper {
+  position: fixed;
+  top: 12px;
+  right: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 10000;
+  max-width: 340px;
+  width: 100%;
+  pointer-events: none;
+}
+
+.toast-item {
+  display: grid;
+  grid-template-columns: 18px 1fr 14px;
+  gap: 10px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  padding: 8px 12px;
+  border-radius: 3px;
+  pointer-events: auto;
+  align-items: flex-start;
+  box-shadow: none !important;
+}
+
+.toast-icon-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 18px;
+}
+
+.icon-success { color: var(--success-color); }
+.icon-error { color: var(--error-color); }
+.icon-conflict { color: var(--warning-color); }
+.icon-info { color: var(--accent-color); }
+
+.toast-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.toast-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-bright);
+}
+
+.toast-desc {
+  font-size: 0.68rem;
+  color: var(--text-main);
+  line-height: 1.3;
+}
+
+.toast-close {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 18px;
+}
+
+.toast-close:hover {
+  color: var(--text-bright);
+}
+
+/* Alert Accents */
+.toast-success { border-left: 2px solid var(--success-color); }
+.toast-error { border-left: 2px solid var(--error-color); }
+.toast-conflict { border-left: 2px solid var(--warning-color); }
+.toast-info { border-left: 2px solid var(--accent-color); }
+
+/* Loading State View Overlay */
+.dashboard-loading-overlay {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  gap: 12px;
+  text-align: center;
+}
+
+.dashboard-loading-overlay h2 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-bright);
+  text-transform: uppercase;
+}
+
+.dashboard-loading-overlay p {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+/* Linear Progress Bar Styles */
+.loading-progress-bar {
+  width: 240px;
+  height: 2px;
+  background: var(--border-color);
+  overflow: hidden;
+  border-radius: 1px;
+  margin: 8px 0;
+}
+
+.loading-progress-bar-fill {
+  height: 100%;
+  background: var(--accent-color);
+  animation: loading-sweep 1.5s ease-in-out infinite;
+}
+
+.chip-pending-label {
+  font-size: 0.6rem;
+  font-family: var(--font-mono);
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* Keyframe Animations */
+@keyframes loading-sweep {
+  0% { width: 0%; }
+  50% { width: 100%; }
+  100% { width: 0%; }
+}

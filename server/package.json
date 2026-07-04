@@ -1,0 +1,20 @@
+{
+  "name": "collision-agile-workspace-server",
+  "version": "1.0.0",
+  "description": "Backend server for Collision-Agile Dynamic Workspace",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node index.js",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "socket.io": "^4.7.5"
+  },
+  "devDependencies": {
+    "vitest": "^1.6.0"
+  }
+}
